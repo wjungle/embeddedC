@@ -7,24 +7,30 @@
 
 #include "circularBuffer.h"
 
+#define BUF_SIZE 4
+
 int main()
 {
-    struct sCircularBuffer cb;
-    struct tElement w_data = {0xff};
-    struct tElement w1_data = {0xed};
-    struct tElement w2_data = {0xab};
-    struct tElement r_data = {0x01};
+    static uint8_t buf[BUF_SIZE];
+    struct sCircularBuffer cb = INIT_CB(buf);
+    uint8_t r_data = 0x01;
+
     
-    CBInit(&cb, 1024);
+    for (int i = 0; i < 5; ++i) {
+        if (!CBisFull(&cb))
+            CBWrite(&cb, i+0x20);
+        else
+            printf("cb is full\n");
+    }
     
-    CBWrite(&cb, w_data);
-    CBWrite(&cb, w1_data);
-    CBWrite(&cb, w2_data);
+    printf("size = %d\n", cb.size);
     
-    CBRead(&cb, &r_data);
-    printf("read data is %x\n", r_data.data);
-    CBRead(&cb, &r_data);
-    printf("read data is %x\n", r_data.data);
-    CBRead(&cb, &r_data);
-    printf("read data is %x\n", r_data.data);
+    for (int i = 0; i < 5; ++i) {
+        if (!CBisEmpty(&cb)) {
+            CBRead(&cb, &r_data);
+            printf("read data is %x\n", r_data);
+        }
+        else
+            printf("cb is empty\n");
+    }
 }

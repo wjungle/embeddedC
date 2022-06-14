@@ -12,22 +12,39 @@
 
 #include "circularBuffer.h"
 
-bool CBInit(struct sCircularBuffer *cb, uint16_t size)
+#if 0
+bool CBInit(struct sCircularBuffer *cb, uint8_t buf[])
 {
-    cb->size = size;
+    cb->buf = buf;
+    cb->size = ARR_SZ(buf);
     cb->read = 0;
     cb->write = 0;
     cb->free = 0;
     
     return true;
 }
+#endif
 
 uint16_t CBLengthData(struct sCircularBuffer *cb)
 {
     return ((cb->write - cb->read) & (cb->size - 1));
 }
 
-enum eError CBWrite(struct sCircularBuffer *cb, struct tElement data)
+bool CBisFull(struct sCircularBuffer *cb)
+{
+    if (CBLengthData(cb) == (cb->size - 1))
+        return TRUE;
+    return FALSE;
+}
+
+bool CBisEmpty(struct sCircularBuffer *cb)
+{
+    if (CBLengthData(cb) == 0)
+        return TRUE;
+    return FALSE;
+}
+
+enum eError CBWrite(struct sCircularBuffer *cb, uint8_t data)
 {
     if (CBLengthData(cb) == (cb->size - 1))
         return CB_ERROR_BUFFER_FULL;
@@ -36,7 +53,7 @@ enum eError CBWrite(struct sCircularBuffer *cb, struct tElement data)
     return CB_ERROR_BUFFER_OK;
 }
 
-enum eError CBRead(struct sCircularBuffer *cb, struct tElement *data)
+enum eError CBRead(struct sCircularBuffer *cb, uint8_t *data)
 {
     if (CBLengthData(cb) == 0)
         return CB_ERROR_BUFFER_EMPTY;
