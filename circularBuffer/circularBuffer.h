@@ -15,8 +15,9 @@
 
 #define ARR_SZ(arr) (sizeof(arr)/sizeof(arr[0]))
 
-#define FALSE 0
-#define TRUE  1
+typedef void* (*cbInit)(size_t size);
+typedef void (*cbWrite)(void* dest, const void* src);
+typedef void (*cbRead)(void* dest, const void* src);
 
 enum eError {
     CB_ERROR_BUFFER_FULL,
@@ -24,35 +25,21 @@ enum eError {
     CB_ERROR_BUFFER_OK,
 };
 
-/*
-struct tElement {
-    uint8_t data;
-};
-*/
-
 struct sCircularBuffer {
-    //struct tElement *buf;
     uint8_t *buf;
+    uint16_t unit;
     uint16_t size;
     uint16_t read;
     uint16_t write;
     uint16_t free;
 };
 
-#define INIT_CB(BUF) { \
-                    .buf = BUF, \
-                    .size = ARR_SZ(BUF), \
-                    .read = 0, \
-                    .write = 0, \
-                    .free = 0, \
-                    }
-
-//bool CBInit(struct sCircularBuffer *cb, uint8_t buf[]);
+struct sCircularBuffer * CBInit(cbInit init, size_t size, uint16_t unit);
 uint16_t CBLengthData(struct sCircularBuffer *cb);
 bool CBisFull(struct sCircularBuffer *cb);
 bool CBisEmpty(struct sCircularBuffer *cb);
-enum eError CBWrite(struct sCircularBuffer *cb, uint8_t data);
-enum eError CBRead(struct sCircularBuffer *cb, uint8_t *data);
+enum eError CBWrite(struct sCircularBuffer *cb, cbWrite wfunc, void* data);
+enum eError CBRead(struct sCircularBuffer *cb, cbRead rFunc, void* data);
 enum eError CBFree(struct sCircularBuffer *cb);
-
+enum eError CBExit(struct sCircularBuffer *cb);
 #endif
